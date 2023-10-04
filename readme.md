@@ -1,30 +1,30 @@
-## Descrição
+## Description
 
-Este é um script Python que automatiza o processo de download da versão beta do WhatsApp a partir do site APKMirror. Ele utiliza várias bibliotecas Python, incluindo `requests`, `BeautifulSoup`, e `clint.textui`, para realizar essa tarefa. Abaixo, explicamos como usar o script e detalhamos seu funcionamento.
+This is a Python script that automates the process of downloading the beta version of WhatsApp from the APKMirror website. It uses various Python libraries, including `requests`, `BeautifulSoup`, and `clint.textui`, to perform this task. Below, we explain how to use the script and detail its operation.
 
-## Uso
+## Usage
 
-1. Certifique-se de que você possui as bibliotecas necessárias instaladas. Você pode instalá-las executando o seguinte comando:
+1. Make sure you have the necessary libraries installed. You can install them by running the following command:
    ```shell
-   pip install -r requirements.txt
-   python wa_downloader.py
-3. Execute o script Python. Ele iniciará o processo de download da versão beta do WhatsApp a partir do site APKMirror.
+   $ pip install -r requirements.txt
+   $ python wa_downloader.py
+2. Run the Python script. It will initiate the process of downloading the beta version of WhatsApp from the APKMirror website.
 
-## Funcionamento
-1. O script começa definindo a URL base (host) e os cabeçalhos de usuário para simular um navegador.
+## Operation
+1. The script starts by defining the base URL (host) and user headers to simulate a web browser.
 
-2. Em seguida, ele faz uma solicitação HTTP para a página inicial do WhatsApp Beta no APKMirror, analisa o conteúdo HTML da página com BeautifulSoup e encontra os links para diferentes versões do WhatsApp.
+2. It then makes an HTTP request to the WhatsApp Beta homepage on APKMirror, parses the HTML content of the page with BeautifulSoup, and finds links to different versions of WhatsApp.
 
-3. O script procura pelo link da versão beta do WhatsApp, identificando-o com a palavra-chave "beta" no texto do link.
+3. The script searches for the link to the beta version of WhatsApp, identifying it by the keyword "beta" in the link's text.
 
-4. Uma vez encontrado o link da versão beta, o script obtém a versão do WhatsApp a partir do texto do link.
+4. Once the link to the beta version is found, the script extracts the version of WhatsApp from the link's text.
 
-5. O script segue para a página de download da versão beta do WhatsApp e extrai o link para fazer o download do arquivo APK.
+5. The script proceeds to the download page for the beta version of WhatsApp and extracts the link to download the APK file.
 
-6. Após obter o link de download, o script o analisa para encontrar o link direto para o arquivo APK.
+6. After obtaining the download link, the script analyzes it to find the direct link to the APK file.
 
-7. Em seguida, ele inicia o processo de download do arquivo APK, mostrando o progresso com uma barra de progresso.
+7. Next, it initiates the download process of the APK file, displaying progress with a progress bar.
 
-8. O arquivo APK é baixado para a pasta de trabalho com um nome que inclui a versão da aplicação.
+8. The APK file is downloaded to the working directory with a name that includes the application's version.
 
-Nota: Este script é específico para o site APKMirror e a estrutura das páginas desse site. Qualquer alteração na estrutura do site pode quebrar o funcionamento do script. Certifique-se de usá-lo de acordo com os termos de serviço do site APKMirror e para fins legais e éticos.
+Note: This script is specific to the APKMirror website and the structure of its pages. Any changes in the website's structure may break the script's functionality. Ensure that you use it in compliance with APKMirror's terms of service and for legal and ethical purposes.
