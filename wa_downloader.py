@@ -1,57 +1,78 @@
+import datetime
 import requests
 from bs4 import BeautifulSoup
 from clint.textui import progress
 
-host = 'https://www.apkmirror.com'
-url = f'{host}/apk/whatsapp-inc/whatsapp/'
-headers = {
-  'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
-}
+class FetchData:
+  host = None
+  html = None
+  headers = {
+    'User-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
+  }
 
-print('Connecting in server...')
-page = requests.get(url, headers=headers, allow_redirects=True)
-soup = BeautifulSoup(page.content, "html.parser")
+  def get (self, param):
+    r = requests.get(f'{self.host}{param}', headers=self.headers, allow_redirects=True)
+    htmlParser = BeautifulSoup(r.content, 'html.parser')
+    self.html = htmlParser
 
-print('Search for version of WhatsApp Beta...')
-links_wa = soup.find_all('a', class_='fontBlack')
+  def download (self, param, filePath):
+    fileDownload = requests.get(f'{self.host}{param}', headers=self.headers, allow_redirects=True, stream=True)
 
-wa_link = next((link_wa for link_wa in links_wa if 'beta' in link_wa.text.strip()), None)
-next_link = f'{host}{wa_link["href"]}'
+    with open(filePath, 'wb') as f:
+      totalLength = int(fileDownload.headers.get('content-length'))
+      for chunk in progress.bar(fileDownload.iter_content(chunk_size=1024), expected_size=(totalLength / 1024) + 1):
+        if chunk:
+          f.write(chunk)
+          f.flush()
 
-version = next(text for text in wa_link.text.split() if '.' in text)
+def getLink (elm):
+  href = elm['href']
+  return href
 
-download_page = requests.get(next_link, headers=headers, allow_redirects=True)
-soup_download_page = BeautifulSoup(download_page.content, "html.parser")
+def output (message):
+  now = datetime.datetime.now()
+  startText = now.strftime("%H:%M:%S")
+  print(f'{startText} ==> {message}')
 
-download_page_link = soup_download_page.find_all('a', string=lambda text: version, class_='accent_color')
-wa_download_parse = next((link for link in download_page_link if link.text.strip() == version), None)['href']
-wa_download_link = f'{host}{wa_download_parse}'
+def main ():
+  output('Connecting application...')
+  app = FetchData()
+  
+  app.host = 'https://www.apkmirror.com'
 
-print('Parsing path...')
+  output('Searching for latest whatsapp beta...')
+  app.get('/apk/whatsapp-inc/whatsapp/')
 
-download_apk = requests.get(wa_download_link, headers=headers, allow_redirects=True)
-download_apk_soup = BeautifulSoup(download_apk.content, "html.parser")
+  findLatestWhatsAppBeta = app.html.find_all('a', 'fontBlack')
+  whatsBetaLinkReleaseFilter = next((link for link in findLatestWhatsAppBeta if 'beta' in link.text.strip()), None)
+  version = next((v for v in whatsBetaLinkReleaseFilter.text.split() if '.' in v), None)
+  whatsAppLink = getLink(whatsBetaLinkReleaseFilter)
 
-download_link = download_apk_soup.find('a', class_='downloadButton')['href']
+  pathFile = f'whatsapp_{version}_beta.apk'
+  output('[OK] Found!!!')
 
-wa_beta_download_link = f'{host}{download_link}'
+  output('Connecting at download server...')
+  app.get(whatsAppLink)
+  waDownloadPage = app.html.find_all('a', class_='accent_color')
+  waDownloadPageFilter = next((link for link in waDownloadPage if link.text.strip() == version), None)
+  waDownloadPageLink = getLink(waDownloadPageFilter)
+  output('[OK] Connected')
 
-print('Getting link to download...')
+  output('Bypass on protected page...')
+  app.get(waDownloadPageLink)
+  bypassLinkDownload = app.html.find('a', class_='downloadButton')
+  bypassLink = getLink(bypassLinkDownload)
+  output('[OK] Done')
 
-downloaded = requests.get(wa_beta_download_link, headers=headers, allow_redirects=True)
+  output(f'Getting download link of whatsapp version {version} beta')
+  app.get(bypassLink)
+  downloadWhatsAppElm = app.html.find('a', string='here')
+  downloadWhatsApp = getLink(downloadWhatsAppElm)
+  output('[OK] Got!!!')
 
-downloaded_parse = BeautifulSoup(downloaded.content, "html.parser")
-wa_link_download_elm = downloaded_parse.find('a', string='here')['href']
-wa_link_download = f'{host}{wa_link_download_elm}'
+  output(f'Downloading {pathFile}')
+  app.download(downloadWhatsApp, pathFile)
+  output(f'Completed your file is {pathFile}.')
 
-print('Initialing download...')
-
-download_wa_request = requests.get(wa_link_download, headers=headers, allow_redirects=True, stream=True)
-path = f'wa_beta_{version}.apk'
-
-with open(path, 'wb') as f:
-  total_length = int(download_wa_request.headers.get('content-length'))
-  for chunk in progress.bar(download_wa_request.iter_content(chunk_size=1024), expected_size=(total_length/1024) + 1):
-    if chunk:
-      f.write(chunk)
-      f.flush()
+if __name__ == '__main__':
+  main()
